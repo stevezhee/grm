@@ -22,7 +22,11 @@ Build-type:          Simple
 
 Extra-source-files:  README, THANKS
 
-Cabal-version:       >=1.2
+Cabal-version:       >= 1.8
+
+source-repository head
+  type: git
+  location: git://github.com/stevezhee/grm.git
 
 Library
   Exposed-modules:     Grm.Prims, Grm.Layout, Grm.Lex
