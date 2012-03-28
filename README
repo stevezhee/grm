@@ -1,0 +1,31 @@
+Introducing the grm compiler construction tool.  Grm takes a grammar
+specification and generates Haskell bindings.  Grm is essentially a
+simplified bnfc which only generates Haskell (bnfc
+http://www.cse.chalmers.se/research/group/Language-technology/BNFC/).
+
+Given a grammar the tool produces:
+  - an abstract syntax implementation
+  - a Happy parser generator file
+  - a pretty-printer
+
+Grm also has some library code for lexing and misc. language
+development tasks (e.g. unique identifiers).
+
+I use grm heavily in my pec language
+compiler. (git@github.com:stevezhee/pec.git and on hackage).  You can
+check out pec for example grm usage.
+
+Building
+  - type 'make'
+  - resolve all hackage dependencies
+  - type 'make' again
+
+You can download and install grm via cabal or access the git
+repository on github (git@github.com:stevezhee/grm.git).
+
+Any feedback on the design and/or implementation of grm would be
+greatly appreciated :)
+
+Thanks,
+Brett
+brettletner at gmail dot com

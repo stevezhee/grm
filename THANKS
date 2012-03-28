@@ -1,0 +1,14 @@
+The developement of grm would not have been possible without the following free software:
+  - ghc http://haskell.org/ghc/
+  - bnfc http://www.cse.chalmers.se/research/group/Language-technology/BNFC/
+  - happy http://haskell.org/happy/
+  - hackage modules http://hackage.haskell.org/packages/hackage.html
+
+In addition I'd like to thank the following people...
+
+Sigbjorn Finne, Andy Gill, Iavor Diatchki, Lee Pike, Isaac
+Potoczny-Jones, Brian Adams, Travis Rhoades, Mike Letner, Brevin
+Letner, and my family
+
+Thanks guys!
+
