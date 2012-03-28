@@ -30,6 +30,6 @@ Library
 
 Executable grm
   Main-is:             grm.hs
-  Build-depends:       base, parsec, wl-pprint, filepath, cmdargs, directory
+  Build-depends:       base, parsec, wl-pprint, filepath, cmdargs, directory, Cabal
   Build-tools:         happy
   

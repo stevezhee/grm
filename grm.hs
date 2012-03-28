@@ -10,14 +10,16 @@ import Control.Monad
 import Data.Char
 import Data.List
 import Data.Maybe
+import Distribution.Text
 import Grm.Prims
+import Paths_grm
 import System.Console.CmdArgs
+import System.Directory
 import System.FilePath.Posix
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
 import Text.PrettyPrint.Leijen (braces,brackets,text,hsep,(<+>),empty,vcat,Doc,indent,(<>),parens,int,list)
 import qualified Text.ParserCombinators.Parsec.Token as P
-import System.Directory
 
 type P a = Parser a
 
@@ -32,10 +34,9 @@ argsDesc = Args
   , locations = def &= help "generate location information"
   } &= summary summ &= program prog
   where
-  summ = prog ++ " v" ++ vers ++ ", " ++ copyright
+  summ = prog ++ " v" ++ display version ++ ", " ++ copyright
   prog = "grm"
   copyright = "(C) Brett Letner 2011-2012"
-  vers = "0.1"
 
 main :: IO ()
 main = do
@@ -113,7 +114,8 @@ parGrm gen_locs dir bn xs = do
     , "%tokentype { (Token Point) }"
     , "%name grmParse"
     , "%token"
-    , unlines [ "  " ++ show sym ++ " " ++ "{ TSymbol _ " ++ show sym ++ " }" | sym <- resDecls xs ]
+    , unlines [ "  " ++ show sym ++ " " ++ "{ TSymbol _ " ++ show sym ++ " }"
+                | sym <- resDecls xs ]
     , "  uident { TUident _ _ }"
     , "  usym { TUsym _ _ }"
     , "  lident { TLident _ _ }"
@@ -158,13 +160,17 @@ vcatStr :: String -> [Doc] -> Doc
 vcatStr s xs = vcat $ intersperse (text s) xs
 
 altList :: [Doc] -> Doc
-altList (x0:xs) = vcat $ [text "=" <+> x0] ++ [ text "|" <+> x | x <- xs ] ++ [text "deriving (Show,Eq,Ord,Data,Typeable)"]
+altList (x0:xs) = vcat $
+  [text "=" <+> x0] ++ [ text "|" <+> x | x <- xs ] ++
+  [text "deriving (Show,Eq,Ord,Data,Typeable)"]
 altList [] = unreachable
 
 dataDecl :: Bool -> Decl -> Doc
 dataDecl gen_locs x = case x of
   Group [] -> unreachable
-  Group xs@(DataD n0 _ : _) -> vcat $ [text "data" <+> text n0 <+> locs, indent 2 $ altList $ concatMap (dataData gen_locs) xs] ++ types (dataDecl gen_locs) xs
+  Group xs@(DataD n0 _ : _) -> vcat $
+    [text "data" <+> text n0 <+> locs, indent 2 $ altList $ concatMap (dataData gen_locs) xs]
+    ++ types (dataDecl gen_locs) xs
   Type a b -> dataType gen_locs a $ text (capitalize b) <+> locs
   List a b _ _ _ _ -> dataType gen_locs a $ brackets $ text b <+> locs
   where
@@ -179,7 +185,9 @@ dataType gen_locs a b = hsep [text "type", text a, locs, text "=", b]
   where locs = if gen_locs then text "a" else empty
         
 dataData :: Bool -> DataD -> [Doc]
-dataData gen_locs (DataD _ xs) = [ hsep $ map text $ s : locs : (catMaybes $ map (nameAltTok gen_locs) ts) | Alt s ts <- xs ]
+dataData gen_locs (DataD _ xs) =
+  [ hsep $ map text $ s : locs : (catMaybes $ map (nameAltTok gen_locs) ts)
+    | Alt s ts <- xs ]
   where locs = if gen_locs then "a" else ""
         
 nameAltTok :: Bool -> AltTok -> Maybe String
@@ -211,19 +219,24 @@ ppDecl :: Bool -> Decl -> Doc
 ppDecl gen_locs x = case x of
   Group [] -> unreachable
   Group xs@(DataD n0 _ : _) -> vcat $
-    [ hsep [text "instance Pretty", parens (text n0 <+> if gen_locs then text "a" else empty), text "where"]
+    [ hsep [ text "instance Pretty"
+           , parens (text n0 <+> if gen_locs then text "a" else empty)
+           , text "where" ]
     , indent 2 $ text "pretty = pp" <> text n0
     , text $ "pp" ++ n0 ++ " x = case x of"
     , indent 2 $ vcat $ concatMap (ppData gen_locs) xs
     ] ++ types (ppDecl gen_locs) xs
   Type a b -> hsep $ map text ["pp" ++ a, "=", "pp" ++ capitalize b]
-  List a b _ d e f -> hsep $ map text ["pp" ++ a, "=", "ppList", "pp" ++ b, show d, show e, show f]
+  List a b _ d e f ->
+    hsep $ map text ["pp" ++ a, "=", "ppList", "pp" ++ b, show d, show e, show f]
 
 ppData :: Bool -> DataD -> [Doc]
 ppData gen_locs (DataD _ xs) = [ f s ts | Alt s ts <- xs ]
   where
   f s ts =
-    hsep [text s, if gen_locs then text "_" else empty, hsep $ map text [ v | (Just v, _) <- ys ], text "->", ppAltToks ys ]
+    hsep [ text s
+         , if gen_locs then text "_" else empty
+         , hsep $ map text [ v | (Just v, _) <- ys ], text "->", ppAltToks ys ]
     where
     ys = nameToks "v" $ numberToks (not . isStringT) ts
 
@@ -375,7 +388,9 @@ parData gen_locs ss (DataD c xs0) = case filter f xs0 of
 
 parAlt :: Bool -> [String] -> Alt -> Doc
 parAlt gen_locs ss x = case x of
-  Alt c ts -> hsep $ map parAltTokL ts ++ [braces $ hsep $ text c : (if gen_locs then loc else empty) : map parAltTokR ns ]
+  Alt c ts -> hsep $
+    map parAltTokL ts ++
+    [braces $ hsep $ text c : (if gen_locs then loc else empty) : map parAltTokR ns ]
     where
     ns = nameToks "$" $ numberToks ((/=) (StringT "")) ts
     loc = case filter ((/=) (StringT "")) ts of
