@@ -1,6 +1,6 @@
 Name:                grm
 
-Version:             0.1.0
+Version:             0.1.1
 
 Synopsis:            grm grammar converter
 
@@ -30,10 +30,10 @@ source-repository head
 
 Library
   Exposed-modules:     Grm.Prims, Grm.Layout, Grm.Lex
-  Build-depends: base < 5, wl-pprint, process, syb, filepath, directory
+  Build-depends: base < 5, wl-pprint, process, syb >= 0.3, filepath, directory
 
 Executable grm
   Main-is:             grm.hs
-  Build-depends:       base < 5, parsec, wl-pprint, filepath, cmdargs, directory, Cabal, process, syb
+  Build-depends:       base < 5, parsec, wl-pprint, filepath, cmdargs, directory, Cabal, process, syb >= 0.3
   Build-tools:         happy
   
