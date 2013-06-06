@@ -16,7 +16,7 @@ import Data.Generics hiding (empty)
 import Data.List
 import Data.Unique
 import Debug.Trace
-import System.Directory
+import System.Directory (doesFileExist)
 import System.Exit (ExitCode(..))
 import System.FilePath
 import System.IO
